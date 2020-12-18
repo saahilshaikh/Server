@@ -1,42 +1,59 @@
-var createError = require("http-errors");
-var express = require("express");
-var path = require("path");
-var cookieParser = require("cookie-parser");
-var logger = require("morgan");
+const express = require("express");
+const mongoose = require("mongoose");
+const cookieSession = require("cookie-session");
+const passport = require("passport");
+const keys = require("./config/keys");
+const bodyParser = require("body-parser");
+const path = require("path");
 
-var indexRouter = require("./routes/index");
-var usersRouter = require("./routes/users");
+require("./models/User");
+require("./models/School");
+require("./models/Class");
+require("./models/DistrictOfficer");
+require("./models/SchoolAdmin");
+require("./models/Principal");
+require("./models/Teacher");
+require("./models/Student");
+require("./models/Parent");
+require("./models/Practice");
+require("./models/PracticeResult");
+require("./models/Exam");
+require("./models/Assignment");
+require("./models/Lesson");
+require("./models/Poll");
+require("./models/Announcement");
+require("./services/passport");
+require("./models/Calendar");
+require("./models/Discussion");
 
-var app = express();
+mongoose.connect(keys.mongoURI, {
+	useNewUrlParser: true,
+	useUnifiedTopology: true,
+});
 
-// view engine setup
-// app.set("views", path.join(__dirname, "views"));
-// app.set("view engine", "jade");
+const app = express();
 
-// app.use(logger("dev"));
-// app.use(express.json());
-// app.use(express.urlencoded({ extended: false }));
-// app.use(cookieParser());
-// app.use(express.static(path.join(__dirname, "public")));
+app.use(bodyParser.json());
 
-// app.use("/", indexRouter);
-// app.use("/users", usersRouter);
+app.use(
+	cookieSession({
+		maxAge: 1 * 24 * 60 * 60 * 1000,
+		keys: [keys.cookieKey],
+	})
+);
 
-// // catch 404 and forward to error handler
-// app.use(function (req, res, next) {
-// 	next(createError(404));
-// });
+app.use(passport.initialize());
+app.use(passport.session());
 
-// // error handler
-// app.use(function (err, req, res, next) {
-// 	// set locals, only providing error in development
-// 	res.locals.message = err.message;
-// 	res.locals.error = req.app.get("env") === "development" ? err : {};
-
-// 	// render the error page
-// 	res.status(err.status || 500);
-// 	res.render("error");
-// });
+require("./routes/authRoutes")(app);
+require("./routes/filesRoutes")(app);
+require("./routes/SuperAdminRoutes")(app);
+require("./routes/districtOfficerRoutes")(app);
+require("./routes/schoolAdminRoutes")(app);
+require("./routes/controllerRoutes")(app);
+require("./routes/studentRoutes")(app);
+require("./routes/teacherRoutes")(app);
+require("./routes/parentRoutes")(app);
 
 app.use(express.static(path.join(__dirname, "build")));
 
