@@ -7,6 +7,10 @@ const ClassSchema = new mongoose.Schema({
             chapterName: String,
             topics: [{
                 topicName: String,
+                code: {
+                    type: String,
+                    default: ''
+                },
                 date: {
                     type: String,
                     default: new Date()
@@ -21,10 +25,17 @@ const ClassSchema = new mongoose.Schema({
                 }
             }],
         }],
-        doa: Date
+        lab: {
+            type: Boolean,
+            default: false,
+        },
+        date: {
+            type: Date,
+            default: Date.now,
+        },
     }],
     className: String,
-    cycle:String,
+    cycle: String,
     doa: {
         type: Date,
         default: Date.now,

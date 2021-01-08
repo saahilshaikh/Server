@@ -91,6 +91,17 @@ const StudentSchema = new mongoose.Schema({
 			date: String,
 		},
 	],
+	participation: [
+		{
+			className: String,
+			sectionName: String,
+			subjectName: String,
+			status: Array,
+			teacherId: String,
+			note: String,
+			date: String,
+		},
+	],
 	problemSolving: [
 		{
 			className: String,

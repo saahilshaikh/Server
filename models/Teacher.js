@@ -43,24 +43,28 @@ const TeacherSchema = new mongoose.Schema({
         {
             class: String,
             section: String,
-            subject: String
+            subject: String,
+            lab: {
+                type: Boolean,
+                default: false
+            }
         }
     ],
     status: {
         type: Boolean,
         default: true
     },
-    todo:{
-        type:Array,
-        default:[]
+    todo: {
+        type: Array,
+        default: []
     },
-    announcement : {
-        type:Array,
-        default:[]
+    announcement: {
+        type: Array,
+        default: []
     },
-    poll : {
-        type : Array,
-        default:[]
+    poll: {
+        type: Array,
+        default: []
     },
     doa: {
         type: Date,

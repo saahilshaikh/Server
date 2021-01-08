@@ -90,6 +90,10 @@ const SchoolSchema = new mongoose.Schema({
 							name: String,
 							startTime: String,
 							endTime: String,
+							lab: {
+								type: Boolean,
+								default: false
+							}
 						},
 					],
 				},

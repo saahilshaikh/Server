@@ -13,6 +13,9 @@ const Polls = mongoose.model('polls');
 const Teacher = mongoose.model('teachers');
 const Announcements = mongoose.model('announcements');
 const Calendar = mongoose.model('calendar');
+const Discussion = mongoose.model('discussions');
+const School = mongoose.model('schools');
+const Assignments = mongoose.model('assignments');
 
 module.exports = (app) => {
 
@@ -27,6 +30,11 @@ module.exports = (app) => {
                     //     var practiceInfo = await PracticeResult.findOne({_id:item}).exec();
                     //     practices.push(practiceInfo)
                     // })
+                    var calendarEvents = await Calendar.find({ grade: student.class, schoolId: student.school_id, audience: 'students' }).exec();
+                    var announcements = await Announcements.find({ grade: student.class }).exec();
+                    var polls = await Polls.find({ grade: student.class }).exec();
+                    var discussions = await Discussion.find({ schoolId: student.school_id, audience: 'students', grade: student.class, section: student.section }).exec();
+                    var assignments = await Assignments.find({ schoolId: student.school_id, className: student.class, sectionName: student.section }).exec();
                     var stud = {
                         _id: student._id,
                         photo: student.photo,
@@ -48,6 +56,7 @@ module.exports = (app) => {
                         doa: student.doa,
                         practices: student.practices,
                         classInfo: classInfo,
+                        participation: student.participation,
                         behaviour: student.behaviour,
                         assignments: student.assignments,
                         attendance: student.attendance,
@@ -55,7 +64,12 @@ module.exports = (app) => {
                         entrepreneurship: student.entrepreneurship,
                         problemSolving: student.problemSolving,
                         negativePoints: student.negativePoints,
-                        positivePoints: student.positivePoints
+                        positivePoints: student.positivePoints,
+                        discussions: discussions,
+                        announcements: announcements,
+                        polls: polls,
+                        calendarEvents: calendarEvents,
+                        assignments: assignments
                     };
                     res.send(stud);
                 }
@@ -207,22 +221,117 @@ module.exports = (app) => {
             })
     })
 
-    // Announcements
-
-    app.post("/api/myschool/getAnnouncements", requireLogin, requireStudent, async (req, res) => {
-        const { grade } = req.body;
-        Announcements.find({ grade: grade })
-            .then((result) => {
-                res.send(result);
-            })
-    })
-
     // Calendar
     app.post("/api/myschool/calendarEvents", requireLogin, requireStudent, async (req, res) => {
         const { grade, schoolId } = req.body;
         Calendar.find({ grade: grade, schoolId: schoolId, audience: 'students' })
             .then((result) => {
                 res.send(result);
+            })
+    })
+
+    // Get other user profile
+
+    app.post("/api/myschool/getOtherUser", requireLogin, requireStudent, async (req, res) => {
+        const { id, role } = req.body;
+        if (role === "teacher") {
+            Teacher.findOne({ _id: id }).then((teacher) => {
+                res.send(teacher);
+            });
+        }
+    });
+
+    // ADD MESSAGE IN FORUM
+
+    app.post("/api/myschool/mydiscussion/addMessage", requireLogin, requireStudent, async (req, res) => {
+        const { userId, userRole, message, id } = req.body;
+
+        Discussion.findOne({ _id: id }).then((result) => {
+            if (result) {
+                var newChats = result.chats;
+
+                // Create chat object
+                var chatObj = {};
+                chatObj.message = message;
+                chatObj.userId = userId;
+                chatObj.userRole = userRole;
+                chatObj.reply = [];
+
+                // push in new chat array
+                newChats.push(chatObj);
+
+                // store in database chats
+                result.chats = newChats;
+
+                result.save().then((re) => {
+                    if (re) {
+                        res.send({ type: "success", success: "Yahoo, chat sent" });
+                    } else {
+                        res.send({ type: "error", error: "chat not" });
+                    }
+                });
+            } else {
+                res.send({ type: "error", error: "not found" });
+            }
+        });
+    });
+
+    // ADD REPLY TO A MESSAGE IN FORUM
+
+    app.post("/api/myschool/mydiscussion/addReply", requireLogin, requireStudent, async (req, res) => {
+        const { reply, userId, userRole, msgId, discId } = req.body;
+
+        Discussion.findOne({ _id: discId }).then((result) => {
+            if (result) {
+                result.chats.map((item) => {
+                    if (item._id.toString() === msgId.toString()) {
+                        var newReply = item.reply;
+
+                        var replyObj = {};
+                        replyObj.reply = reply;
+                        replyObj.userId = userId;
+                        replyObj.userRole = userRole;
+
+                        newReply.push(replyObj);
+
+                        item.reply = newReply;
+                        result.save().then((re) => {
+                            if (re) {
+                                res.send({ type: "success", success: "Yahoo, reply sent" });
+                            } else {
+                                res.send({ type: "error", error: "reply not sent" });
+                            }
+                        });
+                    }
+                });
+            } else {
+                res.send({ type: "error", error: "not found" });
+            }
+        });
+    });
+
+    // Seating chart
+
+    app.post("/api/getSeatChart", requireLogin, requireStudent, async (req, res) => {
+        const { schoolId, grade, section, subject } = req.body;
+
+        School.findOne({ _id: schoolId })
+            .then((school) => {
+                if (school) {
+                    school.classes.length > 1 && school.classes.map((item) => {
+                        if (item.name === grade) {
+                            item.sections.map((sec) => {
+                                if (sec.name === section) {
+                                    sec.subjects.map((sub) => {
+                                        if (sub.name === subject) {
+                                            res.send(sub.layout);
+                                        }
+                                    })
+                                }
+                            })
+                        }
+                    })
+                }
             })
     })
 

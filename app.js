@@ -18,13 +18,17 @@ require("./models/Parent");
 require("./models/Practice");
 require("./models/PracticeResult");
 require("./models/Exam");
+require("./models/QuestionBank");
+require("./models/Homework");
 require("./models/Assignment");
+require("./models/LabWork");
 require("./models/Lesson");
 require("./models/Poll");
 require("./models/Announcement");
 require("./services/passport");
 require("./models/Calendar");
 require("./models/Discussion");
+require("./models/Resource");
 
 mongoose.connect(keys.mongoURI, {
 	useNewUrlParser: true,

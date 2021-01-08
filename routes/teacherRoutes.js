@@ -2,7 +2,6 @@ const requireLogin = require("../middlewares/requireLogin");
 const requireTeacher = require("../middlewares/requireTeacher");
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
-const { response } = require("express");
 
 const Student = mongoose.model("students");
 const Class = mongoose.model("iigp_classes");
@@ -12,12 +11,16 @@ const Teacher = mongoose.model("teachers");
 const School = mongoose.model("schools");
 const Lesson = mongoose.model("lessons");
 const Exam = mongoose.model("exams");
+const QuestionBank = mongoose.model("questionBank");
+const Homework = mongoose.model("homeworks");
 const Assignment = mongoose.model("assignments");
+const LabWork = mongoose.model("labworks");
 const PracticeResult = mongoose.model("practice_results");
 const Poll = mongoose.model("polls");
 const Announcement = mongoose.model("announcements");
 const Calendar = mongoose.model("calendar");
 const Discussion = mongoose.model("discussions");
+const Resource = mongoose.model("iigp_resources");
 
 module.exports = (app) => {
 	//PROFILE DATA
@@ -50,6 +53,11 @@ module.exports = (app) => {
 				}
 				var lessons = await Lesson.find({ schoolId: teacher.school_id, teacherId: teacher._id }).exec();
 				var exams = await Exam.find({ schoolId: teacher.school_id, teacherId: teacher._id }).exec();
+				var questionBank = await QuestionBank.find({ schoolId: teacher.school_id, teacherId: teacher._id }).exec();
+				var homeworks = await Homework.find({ schoolId: teacher.school_id, teacherId: teacher._id }).exec();
+				var assignments = await Assignment.find({ schoolId: teacher.school_id, teacherId: teacher._id }).exec();
+				var labworks = await LabWork.find({ schoolId: teacher.school_id, teacherId: teacher._id }).exec();
+				var resources = await Resource.find().exec();
 				var teacherInfo = {
 					address: teacher.address,
 					city: teacher.city,
@@ -71,11 +79,16 @@ module.exports = (app) => {
 					schoolInfo: school,
 					lessons: lessons,
 					exams: exams,
+					questionBank: questionBank,
+					homeworks: homeworks,
+					assignments: assignments,
+					labworks: labworks,
 					todo: teacher.todo,
 					announcements: announcements,
 					calendar: calendar,
 					polls: polls,
-					discussions: discussions
+					discussions: discussions,
+					resources: resources,
 				};
 				res.send(teacherInfo);
 			} else {
@@ -372,12 +385,94 @@ module.exports = (app) => {
 			});
 	});
 
-	//add exam
+	//Exam
 
 	app.post("/api/teacher/addExam", requireLogin, requireTeacher, async (req, res) => {
 		const { schoolId, teacherId, className, sectionName, subjectName, title, duration, startDate, endDate } = req.body;
 		console.log(req.body);
 		new Exam({
+			schoolId: schoolId,
+			teacherId: teacherId,
+			className: className,
+			sectionName: sectionName,
+			subjectName: subjectName,
+			title: title,
+			duration: duration,
+			startDate: startDate,
+			endDate: endDate,
+		})
+			.save()
+			.then((re) => {
+				if (re) {
+					res.send({ type: "success", success: "Yahoo, Updated Exam" });
+					new QuestionBank({
+						examId: re._id,
+						schoolId: schoolId,
+						teacherId: teacherId,
+						className: className,
+						sectionName: sectionName,
+						subjectName: subjectName,
+						title: title,
+					}).save();
+				} else {
+					res.send({ type: "error", error: "Could not exam" });
+				}
+			});
+	});
+
+	app.post("/api/teacher/updateExam", requireLogin, requireTeacher, async (req, res) => {
+		const { id, questions } = req.body;
+		Exam.findOne({
+			_id: id,
+		})
+			.then((exam) => {
+				if (exam) {
+					exam.questions = questions;
+					exam.save().then((re) => {
+						if (re) {
+							res.send({ type: "success", success: "Yahoo, Updated Exam" });
+							QuestionBank.findOne({ examId: id }).then((bank) => {
+								if (bank) {
+									bank.questions = questions;
+									bank.save();
+								}
+							});
+						} else {
+							res.send({ type: "error", error: "Could not exam" });
+						}
+					});
+				} else {
+					res.send({ type: "error", error: "Could not exam" });
+				}
+			})
+			.catch((err) => {
+				console.log(err);
+				res.send({ type: "error", error: "Could not exam" });
+			});
+	});
+
+	app.post("/api/teacher/deleteExam", requireLogin, requireTeacher, async (req, res) => {
+		const { examId } = req.body;
+		Exam.findByIdAndDelete({ _id: examId })
+			.then((response) => {
+				if (response) {
+					res.send({ type: "success", success: "Yahoo, Exam Deleted" });
+				} else {
+					res.send({ type: "error", error: "Could not delete exam" });
+				}
+			})
+			.catch((err) => {
+				console.log(err);
+				res.send({ type: "error", error: "Could not delete exam" });
+			});
+	});
+
+	//Homework
+
+	app.post("/api/teacher/addHomework", requireLogin, requireTeacher, async (req, res) => {
+		const { schoolId, teacherId, className, sectionName, subjectName, title, duration, startDate, endDate } = req.body;
+		console.log(req.body);
+		new Homework({
 			schoolId: schoolId,
 			teacherId: teacherId,
 			className: className,
@@ -398,9 +493,9 @@ module.exports = (app) => {
 			});
 	});
 
-	app.post("/api/teacher/updateExam", requireLogin, requireTeacher, async (req, res) => {
+	app.post("/api/teacher/updateHomework", requireLogin, requireTeacher, async (req, res) => {
 		const { id, questions } = req.body;
-		Exam.findOne({
+		Homework.findOne({
 			_id: id,
 		})
 			.then((exam) => {
@@ -423,14 +518,13 @@ module.exports = (app) => {
 			});
 	});
 
-	app.post("/api/teacher/deleteExam", requireLogin, requireTeacher, async (req, res) => {
-		const { examId } = req.body;
-		Exam.findByIdAndDelete({ _id: examId })
+	app.post("/api/teacher/deleteHomework", requireLogin, requireTeacher, async (req, res) => {
+		const { homeworkId } = req.body;
+		Homework.findByIdAndDelete({ _id: homeworkId })
 			.then((response) => {
 				if (response) {
 					res.send({ type: "success", success: "Yahoo, Exam Deleted" });
-				}
-				else {
+				} else {
 					res.send({ type: "error", error: "Could not delete exam" });
 				}
 			})
@@ -438,7 +532,120 @@ module.exports = (app) => {
 				console.log(err);
 				res.send({ type: "error", error: "Could not delete exam" });
 			});
-	})
+	});
+
+	//ASSIGNMENT
+
+	app.post("/api/teacher/addAssignment", requireLogin, requireTeacher, async (req, res) => {
+		const { schoolId, teacherId, className, sectionName, subjectName, title, objectives, startDate, endDate } = req.body;
+		console.log(req.body);
+		new Assignment({
+			schoolId: schoolId,
+			teacherId: teacherId,
+			className: className,
+			sectionName: sectionName,
+			subjectName: subjectName,
+			title: title,
+			objectives: objectives,
+			startDate: startDate,
+			endDate: endDate,
+		})
+			.save()
+			.then((re) => {
+				if (re) {
+					res.send({ type: "success", success: "Yahoo, added Assigment" });
+				} else {
+					res.send({ type: "error", error: "Could not add Assigment" });
+				}
+			});
+	});
+
+	app.post("/api/teacher/updateAssignment", requireLogin, requireTeacher, async (req, res) => {
+		const { assignmentId, title, objectives, startDate, endDate } = req.body;
+		Assignment.findOne({
+			_id: assignmentId,
+		})
+			.then((assignment) => {
+				if (assignment) {
+					assignment.title = title;
+					assignment.objectives = objectives;
+					assignment.startDate = startDate;
+					assignment.endDate = endDate;
+					assignment.save().then((re) => {
+						if (re) {
+							res.send({ type: "success", success: "Yahoo, Updated Assignment" });
+						} else {
+							res.send({ type: "error", error: "Could not assignment" });
+						}
+					});
+				} else {
+					res.send({ type: "error", error: "Could not update assignment" });
+				}
+			})
+			.catch((err) => {
+				console.log(err);
+				res.send({ type: "error", error: "Could not update assignment" });
+			});
+	});
+
+	app.post("/api/teacher/deleteAssignment", requireLogin, requireTeacher, async (req, res) => {
+		const { assignmentId } = req.body;
+		Assignment.findByIdAndDelete({ _id: assignmentId })
+			.then((response) => {
+				if (response) {
+					res.send({ type: "success", success: "Yahoo, Assignment Deleted" });
+				} else {
+					res.send({ type: "error", error: "Could not delete assignment" });
+				}
+			})
+			.catch((err) => {
+				console.log(err);
+				res.send({ type: "error", error: "Could not delete assignment" });
+			});
+	});
+
+	app.post("/api/teacher/addAssignmentRemark", requireLogin, requireTeacher, async (req, res) => {
+		const { id, remark, assignmentId } = req.body;
+		Assignment.findOne({
+			_id: assignmentId,
+		})
+			.then((assignment) => {
+				if (assignment) {
+					var attend = assignment.attend;
+					var found = false;
+					var pos;
+					var data = {
+						id: id,
+						remark: remark,
+					};
+					attend.map((a, index) => {
+						if (a.id === id) {
+							found = true;
+							pos = index;
+						}
+					});
+					if (found === false) {
+						attend.push(data);
+					} else {
+						attend[pos].remark = remark;
+					}
+					assignment.attend = attend;
+					assignment.save().then((re) => {
+						if (re) {
+							res.send({ type: "success", success: "Yahoo, Updated Remark" });
+						} else {
+							res.send({ type: "error", error: "Could not Remark" });
+						}
+					});
+				} else {
+					res.send({ type: "error", error: "Could not update Remark" });
+				}
+			})
+			.catch((err) => {
+				console.log(err);
+				res.send({ type: "error", error: "Could not update Remark" });
+			});
+	});
 
 	// ADD DISCUSSION GROUP
 
@@ -453,7 +660,7 @@ module.exports = (app) => {
 			audience: audience,
 			grade: grade,
 			section: section,
-			chats: []
+			chats: [],
 		})
 			.save()
 			.then((re) => {
@@ -462,91 +669,79 @@ module.exports = (app) => {
 				} else {
 					res.send({ type: "error", error: "Could not create group" });
 				}
-			})
-	})
+			});
+	});
 
 	// ADD MESSAGE IN FORUM
 
 	app.post("/api/teacher/addMessage", requireLogin, requireTeacher, async (req, res) => {
 		const { userId, userRole, message, id } = req.body;
 
-		Discussion.findOne({ _id: id })
-			.then((result) => {
-				if (result) {
+		Discussion.findOne({ _id: id }).then((result) => {
+			if (result) {
+				var newChats = result.chats;
 
-					var newChats = result.chats;
+				// Create chat object
+				var chatObj = {};
+				chatObj.message = message;
+				chatObj.userId = userId;
+				chatObj.userRole = userRole;
+				chatObj.reply = [];
 
-					// Create chat object
-					var chatObj = {};
-					chatObj.message = message;
-					chatObj.userId = userId;
-					chatObj.userRole = userRole;
-					chatObj.reply = [];
+				// push in new chat array
+				newChats.push(chatObj);
 
-					// push in new chat array
-					newChats.push(chatObj);
+				// store in database chats
+				result.chats = newChats;
 
-					// store in database chats
-					result.chats = newChats;
-
-					result.save()
-						.then((re) => {
-							if (re) {
-								res.send({ type: "success", success: "Yahoo, chat sent" });
-							}
-							else {
-								res.send({ type: "error", error: "chat not" });
-							}
-						})
-				}
-				else {
-					res.send({ type: "error", error: "not found" });
-				}
-			})
-	})
+				result.save().then((re) => {
+					if (re) {
+						res.send({ type: "success", success: "Yahoo, chat sent" });
+					} else {
+						res.send({ type: "error", error: "chat not" });
+					}
+				});
+			} else {
+				res.send({ type: "error", error: "not found" });
+			}
+		});
+	});
 
 	// ADD REPLY TO A MESSAGE IN FORUM
 
 	app.post("/api/teacher/addReply", requireLogin, requireTeacher, async (req, res) => {
 		const { reply, userId, userRole, msgId, discId } = req.body;
 
-		Discussion.findOne({ _id: discId })
-			.then((result) => {
-				if (result) {
-					console.log("result");
-					result.chats.map((item) => {
-						if (item._id.toString() === msgId.toString()) {
+		Discussion.findOne({ _id: discId }).then((result) => {
+			if (result) {
+				console.log("result");
+				result.chats.map((item) => {
+					if (item._id.toString() === msgId.toString()) {
+						var newReply = item.reply;
 
-							var newReply = item.reply;
+						var replyObj = {};
+						replyObj.reply = reply;
+						replyObj.userId = userId;
+						replyObj.userRole = userRole;
 
-							var replyObj = {};
-							replyObj.reply = reply;
-							replyObj.userId = userId;
-							replyObj.userRole = userRole;
+						newReply.push(replyObj);
 
-							newReply.push(replyObj);
-
-							item.reply = newReply;
-							console.log(item.reply);
-							result.save()
-								.then((re) => {
-									if (re) {
-										res.send({ type: "success", success: "Yahoo, reply sent" });
-									}
-									else {
-										res.send({ type: "error", error: "reply not sent" });
-									}
-								})
-						}
-					})
-				}
-				else {
-					res.send({ type: "error", error: "not found" });
-				}
-			})
-	})
-
-
+						item.reply = newReply;
+						console.log(item.reply);
+						result.save().then((re) => {
+							if (re) {
+								res.send({ type: "success", success: "Yahoo, reply sent" });
+							} else {
+								res.send({ type: "error", error: "reply not sent" });
+							}
+						});
+					}
+				});
+			} else {
+				res.send({ type: "error", error: "not found" });
+			}
+		});
+	});
 
 	//EDIT-LESSON-PLAN
 
@@ -1125,6 +1320,95 @@ module.exports = (app) => {
 		});
 	});
 
+	//ADD Participation
+	app.post("/api/teacher/addParticipation", requireLogin, requireTeacher, async (req, res) => {
+		const { className, sectionName, subjectName, status, teacherId, studentId, note, date, push } = req.body;
+		console.log(status);
+		Student.findOne({ _id: studentId }).then((student) => {
+			if (student) {
+				var found = false;
+				var pos;
+				var participations = student.participation;
+				var participation = {
+					className: className,
+					sectionName: sectionName,
+					subjectName: subjectName,
+					status: status,
+					teacherId: teacherId,
+					note: "",
+					date: date,
+				};
+				participations.map((creat, index) => {
+					if (
+						creat.teacherId === teacherId &&
+						creat.sectionName === sectionName &&
+						creat.className === className &&
+						creat.subjectName === subjectName &&
+						creat.date === date
+					) {
+						found = true;
+						pos = index;
+					}
+				});
+				if (found) {
+					participations[pos].status = status;
+					if (push) {
+						student.positivePoints = student.positivePoints + 1;
+					} else {
+						student.positivePoints = student.positivePoints - 1;
+					}
+				} else {
+					participations.push(participation);
+					student.positivePoints = student.positivePoints + 1;
+				}
+				student.participation = participations;
+				console.log(student.participation);
+				student.save().then((re) => {
+					if (re) {
+						res.send({ type: "success", success: "Yahoo, Updated Participation" });
+					} else {
+						res.send({ type: "error", error: "Could not update Participation" });
+					}
+				});
+			}
+		});
+	});
+
+	app.post("/api/teacher/addParticipationNote", requireLogin, requireTeacher, async (req, res) => {
+		const { className, sectionName, subjectName, status, teacherId, studentId, note } = req.body;
+		Student.findOne({ _id: studentId }).then((student) => {
+			if (student) {
+				var found = false;
+				var pos;
+				var participations = student.participation;
+				participations.map((creat, index) => {
+					if (
+						creat.teacherId === teacherId &&
+						creat.sectionName === sectionName &&
+						creat.className === className &&
+						creat.subjectName === subjectName
+					) {
+						found = true;
+						pos = index;
+					}
+				});
+				if (found) {
+					participations[pos].status = status;
+					participations[pos].note = note;
+				}
+				student.participation = participations;
+				console.log(student.participation);
+				student.save().then((re) => {
+					if (re) {
+						res.send({ type: "success", success: "Yahoo, Updated Participation" });
+					} else {
+						res.send({ type: "error", error: "Could not update Participation" });
+					}
+				});
+			}
+		});
+	});
+
 	//ADD ProblemSolving
 	app.post("/api/teacher/addProblem", requireLogin, requireTeacher, async (req, res) => {
 		const { className, sectionName, subjectName, status, teacherId, studentId, note, date, push } = req.body;
@@ -1223,13 +1507,147 @@ module.exports = (app) => {
 
 	app.post("/api/teacher/getOtherUser", requireLogin, requireTeacher, async (req, res) => {
 		const { id, role } = req.body;
-		if (role === 'teacher') {
-			Teacher.findOne({ _id: id })
-				.then((teacher) => {
-					res.send(teacher);
-				})
+		if (role === "teacher") {
+			Teacher.findOne({ _id: id }).then((teacher) => {
+				res.send(teacher);
+			});
 		}
 	});
 
+	// Get list of all codes of topics
 
+	app.post("/api/teacher/getCodes", requireLogin, requireTeacher, async (req, res) => {
+		const { code, grade, subject } = req.body;
+
+		Class.findOne({ className: grade }).then((clas) => {
+			if (clas) {
+				clas.subjects.map((sub) => {
+					if (sub.subjectName === subject) {
+						var codeArray = [];
+						for (var i = 0; i < sub.chapters.length; i++) {
+							sub.chapters[i].topics.map((topic) => {
+								codeArray.push(topic.code);
+							});
+						}
+						res.send(codeArray);
+					}
+				});
+			}
+		});
+	});
+
+	//LABWORK
+
+	app.post("/api/teacher/addLabWork", requireLogin, requireTeacher, async (req, res) => {
+		const { schoolId, teacherId, className, sectionName, subjectName, title, objectives, startDate, endDate } = req.body;
+		console.log(req.body);
+		new LabWork({
+			schoolId: schoolId,
+			teacherId: teacherId,
+			className: className,
+			sectionName: sectionName,
+			subjectName: subjectName,
+			title: title,
+			objectives: objectives,
+			startDate: startDate,
+			endDate: endDate,
+		})
+			.save()
+			.then((re) => {
+				if (re) {
+					res.send({ type: "success", success: "Yahoo, added Labwork" });
+				} else {
+					res.send({ type: "error", error: "Could not add Labwork" });
+				}
+			});
+	});
+
+	app.post("/api/teacher/updateLabWork", requireLogin, requireTeacher, async (req, res) => {
+		const { labworkId, title, objectives, startDate, endDate } = req.body;
+		LabWork.findOne({
+			_id: labworkId,
+		})
+			.then((labwork) => {
+				if (labwork) {
+					labwork.title = title;
+					labwork.objectives = objectives;
+					labwork.startDate = startDate;
+					labwork.endDate = endDate;
+					labwork.save().then((re) => {
+						if (re) {
+							res.send({ type: "success", success: "Yahoo, Updated Labwork" });
+						} else {
+							res.send({ type: "error", error: "Could not Labwork" });
+						}
+					});
+				} else {
+					res.send({ type: "error", error: "Could not update Labwork" });
+				}
+			})
+			.catch((err) => {
+				console.log(err);
+				res.send({ type: "error", error: "Could not update Labwork" });
+			});
+	});
+
+	app.post("/api/teacher/deleteLabWork", requireLogin, requireTeacher, async (req, res) => {
+		const { labworkId } = req.body;
+		LabWork.findByIdAndDelete({ _id: labworkId })
+			.then((response) => {
+				if (response) {
+					res.send({ type: "success", success: "Yahoo, Labwork Deleted" });
+				} else {
+					res.send({ type: "error", error: "Could not delete Labwork " });
+				}
+			})
+			.catch((err) => {
+				console.log(err);
+				res.send({ type: "error", error: "Could not delete labwork" });
+			});
+	});
+
+	app.post("/api/teacher/addLabWorkRemark", requireLogin, requireTeacher, async (req, res) => {
+		const { id, remark, labworkId, observation } = req.body;
+		LabWork.findOne({
+			_id: labworkId,
+		})
+			.then((labwork) => {
+				if (labwork) {
+					var attend = labwork.attend;
+					var found = false;
+					var pos;
+					var data = {
+						id: id,
+						remark: remark,
+						observation: observation,
+					};
+					attend.map((a, index) => {
+						if (a.id === id) {
+							found = true;
+							pos = index;
+						}
+					});
+					if (found === false) {
+						attend.push(data);
+					} else {
+						attend[pos].remark = remark;
+						attend[pos].observation = observation;
+					}
+					labwork.attend = attend;
+					labwork.save().then((re) => {
+						if (re) {
+							res.send({ type: "success", success: "Yahoo, Updated Remark" });
+						} else {
+							res.send({ type: "error", error: "Could not Remark" });
+						}
+					});
+				} else {
+					res.send({ type: "error", error: "Could not update Remark" });
+				}
+			})
+			.catch((err) => {
+				console.log(err);
+				res.send({ type: "error", error: "Could not update Remark" });
+			});
+	});
 };

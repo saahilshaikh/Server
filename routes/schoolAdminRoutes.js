@@ -106,7 +106,7 @@ module.exports = (app) => {
     });
 
     app.get("/api/schoolAdmin/iigpClasses", requireLogin, async (req, res) => {
-        Class.find().then(classes=>{
+        Class.find().then(classes => {
             res.send(classes);
         })
     });
@@ -243,7 +243,7 @@ module.exports = (app) => {
     });
 
     app.post("/api/schoolAdmin/assignTeacher", requireLogin, async (req, res) => {
-        const { id, className, subjectName, sectionName } = req.body;
+        const { id, className, subjectName, sectionName, lab } = req.body;
         Teacher.findOne({ _id: id })
             .then(teacher => {
                 if (teacher) {
@@ -251,7 +251,8 @@ module.exports = (app) => {
                     var subject = {
                         class: className,
                         section: sectionName,
-                        subject: subjectName
+                        subject: subjectName,
+                        lab: lab
                     }
                     teacher.subjects.push(subject);
                     console.log(teacher.subjects);
