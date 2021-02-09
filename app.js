@@ -17,6 +17,7 @@ require("./models/Student");
 require("./models/Parent");
 require("./models/Practice");
 require("./models/PracticeResult");
+require("./models/ExamResult");
 require("./models/Exam");
 require("./models/QuestionBank");
 require("./models/Homework");

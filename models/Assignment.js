@@ -14,6 +14,10 @@ const AssignmentSchema = new mongoose.Schema({
 		{
 			id: String,
 			remark: String,
+			marks: {
+				type: Number,
+				default: 0,
+			},
 		},
 	],
 	date: {

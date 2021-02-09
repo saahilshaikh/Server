@@ -47,6 +47,7 @@ module.exports = (app) => {
 					var student = await Student.findOne({
 						_id: studentList[i].id,
 					}).exec();
+					console.log(student);
 					if (classes.includes(student.class)) {
 						students.push(student);
 					}
@@ -160,13 +161,7 @@ module.exports = (app) => {
 					date: date,
 				};
 				behaviours.map((behave, index) => {
-					if (
-						behave.teacherId === teacherId &&
-						behave.sectionName === sectionName &&
-						behave.className === className &&
-						behave.subjectName === subjectName &&
-						behave.date === date
-					) {
+					if (behave.teacherId === teacherId && behave.sectionName === sectionName && behave.className === className && behave.subjectName === subjectName && behave.date === date) {
 						found = true;
 						pos = index;
 					}
@@ -223,12 +218,7 @@ module.exports = (app) => {
 				var pos;
 				var behaviours = student.behaviour;
 				behaviours.map((behave, index) => {
-					if (
-						behave.teacherId === teacherId &&
-						behave.sectionName === sectionName &&
-						behave.className === className &&
-						behave.subjectName === subjectName
-					) {
+					if (behave.teacherId === teacherId && behave.sectionName === sectionName && behave.className === className && behave.subjectName === subjectName) {
 						found = true;
 						pos = index;
 					}
@@ -267,13 +257,7 @@ module.exports = (app) => {
 					date: date,
 				};
 				attendances.map((attend, index) => {
-					if (
-						attend.teacherId === teacherId &&
-						attend.sectionName === sectionName &&
-						attend.className === className &&
-						attend.subjectName === subjectName &&
-						attend.date === date
-					) {
+					if (attend.teacherId === teacherId && attend.sectionName === sectionName && attend.className === className && attend.subjectName === subjectName && attend.date === date) {
 						found = true;
 						pos = index;
 						console.log("Found");
@@ -312,25 +296,7 @@ module.exports = (app) => {
 
 	//add lesson plan
 	app.post("/api/teacher/addLessonPlan", requireLogin, requireTeacher, async (req, res) => {
-		const {
-			goal,
-			ldur,
-			objective,
-			summary,
-			skills,
-			questions,
-			knowledge,
-			references,
-			hw,
-			feedback,
-			schoolId,
-			teacherId,
-			className,
-			sectionName,
-			subjectName,
-			chapterName,
-			topicName,
-		} = req.body;
+		const { goal, ldur, objective, summary, skills, questions, knowledge, references, hw, feedback, schoolId, teacherId, className, sectionName, subjectName, chapterName, topicName } = req.body;
 
 		new Lesson({
 			goal: goal,
@@ -605,7 +571,7 @@ module.exports = (app) => {
 	});
 
 	app.post("/api/teacher/addAssignmentRemark", requireLogin, requireTeacher, async (req, res) => {
-		const { id, remark, assignmentId } = req.body;
+		const { id, remark, assignmentId, marks } = req.body;
 		Assignment.findOne({
 			_id: assignmentId,
 		})
@@ -617,6 +583,7 @@ module.exports = (app) => {
 					var data = {
 						id: id,
 						remark: remark,
+						marks: marks,
 					};
 					attend.map((a, index) => {
 						if (a.id === id) {
@@ -628,6 +595,7 @@ module.exports = (app) => {
 						attend.push(data);
 					} else {
 						attend[pos].remark = remark;
+						attend[pos].marks = marks;
 					}
 					assignment.attend = attend;
 					assignment.save().then((re) => {
@@ -1122,13 +1090,7 @@ module.exports = (app) => {
 					date: date,
 				};
 				creativities.map((creat, index) => {
-					if (
-						creat.teacherId === teacherId &&
-						creat.sectionName === sectionName &&
-						creat.className === className &&
-						creat.subjectName === subjectName &&
-						creat.date === date
-					) {
+					if (creat.teacherId === teacherId && creat.sectionName === sectionName && creat.className === className && creat.subjectName === subjectName && creat.date === date) {
 						found = true;
 						pos = index;
 					}
@@ -1165,12 +1127,7 @@ module.exports = (app) => {
 				var pos;
 				var creativities = student.creativity;
 				creativities.map((creat, index) => {
-					if (
-						creat.teacherId === teacherId &&
-						creat.sectionName === sectionName &&
-						creat.className === className &&
-						creat.subjectName === subjectName
-					) {
+					if (creat.teacherId === teacherId && creat.sectionName === sectionName && creat.className === className && creat.subjectName === subjectName) {
 						found = true;
 						pos = index;
 					}
@@ -1250,13 +1207,7 @@ module.exports = (app) => {
 					date: date,
 				};
 				entrepreneurships.map((creat, index) => {
-					if (
-						creat.teacherId === teacherId &&
-						creat.sectionName === sectionName &&
-						creat.className === className &&
-						creat.subjectName === subjectName &&
-						creat.date === date
-					) {
+					if (creat.teacherId === teacherId && creat.sectionName === sectionName && creat.className === className && creat.subjectName === subjectName && creat.date === date) {
 						found = true;
 						pos = index;
 					}
@@ -1293,12 +1244,7 @@ module.exports = (app) => {
 				var pos;
 				var entrepreneurships = student.entrepreneurship;
 				entrepreneurships.map((creat, index) => {
-					if (
-						creat.teacherId === teacherId &&
-						creat.sectionName === sectionName &&
-						creat.className === className &&
-						creat.subjectName === subjectName
-					) {
+					if (creat.teacherId === teacherId && creat.sectionName === sectionName && creat.className === className && creat.subjectName === subjectName) {
 						found = true;
 						pos = index;
 					}
@@ -1339,13 +1285,7 @@ module.exports = (app) => {
 					date: date,
 				};
 				participations.map((creat, index) => {
-					if (
-						creat.teacherId === teacherId &&
-						creat.sectionName === sectionName &&
-						creat.className === className &&
-						creat.subjectName === subjectName &&
-						creat.date === date
-					) {
+					if (creat.teacherId === teacherId && creat.sectionName === sectionName && creat.className === className && creat.subjectName === subjectName && creat.date === date) {
 						found = true;
 						pos = index;
 					}
@@ -1382,12 +1322,7 @@ module.exports = (app) => {
 				var pos;
 				var participations = student.participation;
 				participations.map((creat, index) => {
-					if (
-						creat.teacherId === teacherId &&
-						creat.sectionName === sectionName &&
-						creat.className === className &&
-						creat.subjectName === subjectName
-					) {
+					if (creat.teacherId === teacherId && creat.sectionName === sectionName && creat.className === className && creat.subjectName === subjectName) {
 						found = true;
 						pos = index;
 					}
@@ -1428,13 +1363,7 @@ module.exports = (app) => {
 					date: date,
 				};
 				problems.map((creat, index) => {
-					if (
-						creat.teacherId === teacherId &&
-						creat.sectionName === sectionName &&
-						creat.className === className &&
-						creat.subjectName === subjectName &&
-						creat.date === date
-					) {
+					if (creat.teacherId === teacherId && creat.sectionName === sectionName && creat.className === className && creat.subjectName === subjectName && creat.date === date) {
 						found = true;
 						pos = index;
 					}
@@ -1471,12 +1400,7 @@ module.exports = (app) => {
 				var pos;
 				var problems = student.problemSolving;
 				problems.map((creat, index) => {
-					if (
-						creat.teacherId === teacherId &&
-						creat.sectionName === sectionName &&
-						creat.className === className &&
-						creat.subjectName === subjectName
-					) {
+					if (creat.teacherId === teacherId && creat.sectionName === sectionName && creat.className === className && creat.subjectName === subjectName) {
 						found = true;
 						pos = index;
 					}
@@ -1607,7 +1531,7 @@ module.exports = (app) => {
 	});
 
 	app.post("/api/teacher/addLabWorkRemark", requireLogin, requireTeacher, async (req, res) => {
-		const { id, remark, labworkId, observation } = req.body;
+		const { id, remark, labworkId, observation, marks } = req.body;
 		LabWork.findOne({
 			_id: labworkId,
 		})
@@ -1620,6 +1544,7 @@ module.exports = (app) => {
 						id: id,
 						remark: remark,
 						observation: observation,
+						marks: marks,
 					};
 					attend.map((a, index) => {
 						if (a.id === id) {
@@ -1632,6 +1557,7 @@ module.exports = (app) => {
 					} else {
 						attend[pos].remark = remark;
 						attend[pos].observation = observation;
+						attend[pos].marks = marks;
 					}
 					labwork.attend = attend;
 					labwork.save().then((re) => {

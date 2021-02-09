@@ -15,6 +15,10 @@ const LabWorkSchema = new mongoose.Schema({
 			id: String,
 			observation: String,
 			remark: String,
+			marks: {
+				type: Number,
+				default: 0,
+			},
 		},
 	],
 	date: {
