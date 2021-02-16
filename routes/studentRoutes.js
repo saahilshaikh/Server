@@ -32,7 +32,7 @@ module.exports = (app) => {
 				//     practices.push(practiceInfo)
 				// })
 
-				var exams = await Exams.find({schoolId: student.school_id, className : student.class, sectionName: student.section}).exec();
+				var exams = await Exams.find({ schoolId: student.school_id, className: student.class, sectionName: student.section }).exec();
 				var labs = await Labs.find({ schoolId: student.school_id }).exec();
 				var calendarEvents = await Calendar.find({ grade: student.class, schoolId: student.school_id, audience: "students" }).exec();
 				var announcements = await Announcements.find({ grade: student.class }).exec();
@@ -84,7 +84,7 @@ module.exports = (app) => {
 					calendarEvents: calendarEvents,
 					assignments: assignments,
 					labs: labs,
-					exams : exams
+					exams: exams,
 				};
 				res.send(stud);
 			} else {
@@ -98,7 +98,6 @@ module.exports = (app) => {
 		Class.findOne({ className: grade }).then((response) => {
 			if (response) {
 				res.send(response);
-				console.log(response);
 			} else {
 				res.send({ error: "No class found", type: "error" });
 			}
@@ -175,53 +174,48 @@ module.exports = (app) => {
 
 	// Register student for exam attempt
 	app.post("/api/exam/storeAttempt", requireLogin, requireStudent, async (req, res) => {
-		const {studentId, examId} = req.body;
-		Exams.findOne({_id : examId})
-		.then((result) => {
+		const { studentId, examId } = req.body;
+		Exams.findOne({ _id: examId }).then((result) => {
 			if (result) {
 				var arr = result.attend;
 				arr.push(studentId);
 				result.attend = arr;
-				result.save()
-				.then((re) => {
+				result.save().then((re) => {
 					if (re) {
-						res.send({type : "success"});
+						res.send({ type: "success" });
+					} else {
+						res.send({ type: "error" });
 					}
-					else {
-						res.send({type : "error"});
-					}
-				})
+				});
 			}
-		})
-	})
+		});
+	});
 
 	//Saving exam
 
-	app.post("/api/exam/saveExam", requireLogin, requireStudent, async (req,res) => {
-		const {studentId ,examId,schoolId,questions,title,marks,correct,wrong,subject} = req.body;
+	app.post("/api/exam/saveExam", requireLogin, requireStudent, async (req, res) => {
+		const { studentId, examId, schoolId, questions, title, marks, correct, wrong, subject } = req.body;
 
 		new ExamResult({
-			studentId : studentId,
-			examId : examId,
-			schoolId : schoolId,
+			studentId: studentId,
+			examId: examId,
+			schoolId: schoolId,
 			questions: questions,
-			title : title,
-			marks:marks,
+			title: title,
+			marks: marks,
 			correct: correct,
 			wrong: wrong,
-			subject:subject,
+			subject: subject,
 		})
-		.save()
-		.then((re) => {
-			if (re) {
-				res.send({ success: "Result saved", type: "success" });
-			}
-			else {
-				res.send({ success: "Result not saved", type: "error" });
-			}
-		})
-	})
-	
+			.save()
+			.then((re) => {
+				if (re) {
+					res.send({ success: "Result saved", type: "success" });
+				} else {
+					res.send({ success: "Result not saved", type: "error" });
+				}
+			});
+	});
 
 	// GET ANALYTICAL REPORTS
 
@@ -250,18 +244,16 @@ module.exports = (app) => {
 
 	// GET ALL EXAM RESULT FOR GRADEBOOK
 
-	app.post("/api/gradebook/exam", requireLogin, requireStudent, async(req, res) => {
-		const {studentId} = req.body;
-		ExamResult.find({studentId : studentId})
-		.then((result) => {
-			if (result && result.length > 0) {
-				res.send({data: result, type : "success"});
-			}
-			else {
+	app.post("/api/gradebook/exam", requireLogin, requireStudent, async (req, res) => {
+		const { studentId } = req.body;
+		ExamResult.find({ studentId: studentId }).then((result) => {
+			if (result) {
+				res.send({ data: result, type: "success" });
+			} else {
 				res.send({ error: "Not Found", type: "error" });
 			}
-		})
-	})
+		});
+	});
 
 	// GET EXAM ANALYTICAL REPORT
 	app.post("/api/examAnalytics/getLastTen", requireLogin, requireStudent, async (req, res) => {
@@ -286,7 +278,6 @@ module.exports = (app) => {
 			}
 		});
 	});
-
 
 	// STUDENT SCHOOL API
 

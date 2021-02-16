@@ -47,7 +47,6 @@ module.exports = (app) => {
 					var student = await Student.findOne({
 						_id: studentList[i].id,
 					}).exec();
-					console.log(student);
 					if (classes.includes(student.class)) {
 						students.push(student);
 					}
