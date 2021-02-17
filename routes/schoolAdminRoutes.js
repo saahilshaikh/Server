@@ -10,6 +10,18 @@ const Teacher = mongoose.model("teachers");
 const Student = mongoose.model('students');
 const Parent = mongoose.model('parents');
 const Class = mongoose.model("iigp_classes");
+const Lesson = mongoose.model("lessons");
+const Exam = mongoose.model("exams");
+const QuestionBank = mongoose.model("questionBank");
+const Homework = mongoose.model("homeworks");
+const Assignment = mongoose.model("assignments");
+const LabWork = mongoose.model("labworks");
+const PracticeResult = mongoose.model("practice_results");
+const Poll = mongoose.model("polls");
+const Announcement = mongoose.model("announcements");
+const Calendar = mongoose.model("calendar");
+const Discussion = mongoose.model("discussions");
+const Resource = mongoose.model("iigp_resources");
 
 module.exports = (app) => {
 
@@ -412,6 +424,7 @@ module.exports = (app) => {
                                                                         children.push(child);
                                                                         new Parent({
                                                                             children: children,
+                                                                            name:pname,
                                                                             email: pemail,
                                                                             school_id: schoolId
                                                                         })
@@ -471,6 +484,20 @@ module.exports = (app) => {
                 }
             })
     });
+
+    app.post("/api/schoolAdmin/studentAnalytics/subject", requireLogin, async (req, res) => {
+		console.log("509", req.body);
+		const { studentId, subject } = req.body;
+		PracticeResult.find({ studentId: studentId, subject: new RegExp(subject, "i") }).sort({date:-1}).then((result) => {
+			if (result.length > 0) {
+				console.log("Found Something !", result.length);
+				res.send({ data: result.reverse(), type: "success" });
+			} else {
+				console.log("Not Found !");
+				res.send({ error: "Not Found", type: "error" });
+			}
+		});
+	});
 
 
 

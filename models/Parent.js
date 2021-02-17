@@ -6,6 +6,9 @@ const ParentSchema = new mongoose.Schema({
             id: String
         }
     ],
+    name: {
+        type: String,
+    },
     email: {
         type: String
     },

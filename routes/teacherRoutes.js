@@ -1059,7 +1059,7 @@ module.exports = (app) => {
 	app.post("/api/teacher/studentAnalytics/subject", requireLogin, requireTeacher, async (req, res) => {
 		console.log("509", req.body);
 		const { studentId, subject } = req.body;
-		PracticeResult.find({ studentId: studentId, subject: new RegExp(subject, "i") }).then((result) => {
+		PracticeResult.find({ studentId: studentId, subject: new RegExp(subject, "i") }).sort({date:-1}).then((result) => {
 			if (result.length > 0) {
 				console.log("Found Something !", result.length);
 				res.send({ data: result.reverse(), type: "success" });

@@ -1,17 +1,17 @@
 {
   "files": {
-    "main.css": "/static/css/main.79a77929.chunk.css",
-    "main.js": "/static/js/main.0ddda9da.chunk.js",
-    "main.js.map": "/static/js/main.0ddda9da.chunk.js.map",
+    "main.css": "/static/css/main.04e484c6.chunk.css",
+    "main.js": "/static/js/main.bd8f7246.chunk.js",
+    "main.js.map": "/static/js/main.bd8f7246.chunk.js.map",
     "runtime-main.js": "/static/js/runtime-main.8f49b074.js",
     "runtime-main.js.map": "/static/js/runtime-main.8f49b074.js.map",
-    "static/css/2.7ca5861e.chunk.css": "/static/css/2.7ca5861e.chunk.css",
-    "static/js/2.ca67f865.chunk.js": "/static/js/2.ca67f865.chunk.js",
-    "static/js/2.ca67f865.chunk.js.map": "/static/js/2.ca67f865.chunk.js.map",
+    "static/css/2.c69ea5db.chunk.css": "/static/css/2.c69ea5db.chunk.css",
+    "static/js/2.273224ac.chunk.js": "/static/js/2.273224ac.chunk.js",
+    "static/js/2.273224ac.chunk.js.map": "/static/js/2.273224ac.chunk.js.map",
     "index.html": "/index.html",
-    "static/css/2.7ca5861e.chunk.css.map": "/static/css/2.7ca5861e.chunk.css.map",
-    "static/css/main.79a77929.chunk.css.map": "/static/css/main.79a77929.chunk.css.map",
-    "static/js/2.ca67f865.chunk.js.LICENSE.txt": "/static/js/2.ca67f865.chunk.js.LICENSE.txt",
+    "static/css/2.c69ea5db.chunk.css.map": "/static/css/2.c69ea5db.chunk.css.map",
+    "static/css/main.04e484c6.chunk.css.map": "/static/css/main.04e484c6.chunk.css.map",
+    "static/js/2.273224ac.chunk.js.LICENSE.txt": "/static/js/2.273224ac.chunk.js.LICENSE.txt",
     "static/media/App.css": "/static/media/Mulish-Regular.2f1b7468.ttf",
     "static/media/add.6e293e10.svg": "/static/media/add.6e293e10.svg",
     "static/media/arts.3f4af7da.svg": "/static/media/arts.3f4af7da.svg",
@@ -29,7 +29,7 @@
     "static/media/parentDashboard.css": "/static/media/discover-blue-bg-1920-1x.a6f86614.jpg",
     "static/media/discussion.5b97baa5.svg": "/static/media/discussion.5b97baa5.svg",
     "static/media/document.dabc5927.svg": "/static/media/document.dabc5927.svg",
-    "static/media/examSubjectAnalytics.css": "/static/media/download.bdc0d684.png",
+    "static/media/schoolProgress.css": "/static/media/download.bdc0d684.png",
     "static/media/elections.a7dfb1cb.svg": "/static/media/elections.a7dfb1cb.svg",
     "static/media/electronic-circuit.e153c789.svg": "/static/media/electronic-circuit.e153c789.svg",
     "static/media/english.97aadb7e.svg": "/static/media/english.97aadb7e.svg",
@@ -85,9 +85,9 @@
   },
   "entrypoints": [
     "static/js/runtime-main.8f49b074.js",
-    "static/css/2.7ca5861e.chunk.css",
-    "static/js/2.ca67f865.chunk.js",
-    "static/css/main.79a77929.chunk.css",
-    "static/js/main.0ddda9da.chunk.js"
+    "static/css/2.c69ea5db.chunk.css",
+    "static/js/2.273224ac.chunk.js",
+    "static/css/main.04e484c6.chunk.css",
+    "static/js/main.bd8f7246.chunk.js"
   ]
 }
